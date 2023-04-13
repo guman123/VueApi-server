@@ -13,7 +13,10 @@ const getTotal = async () => {
     return cnt;
   } catch (e) {
     console.log(e.message);
-    return resData(STATUS.E300.result, STATUS.E300.resultDesc, moment().format('LT'));
+    return resData(
+      STATUS.E300.result, 
+      STATUS.E300.resultDesc, 
+      moment().format('LT'));
   }
 };
 
@@ -27,7 +30,10 @@ const getSelectOne = async (id) => {
     return cnt;
   } catch (e) {
     console.log(e.message);
-    return resData(STATUS.E300.result, STATUS.E300.resultDesc, moment().format('LT'));
+    return resData(
+      STATUS.E300.result, 
+      STATUS.E300.resultDesc, 
+      moment().format('LT'));
   }
 };
 
@@ -48,7 +54,10 @@ const getList = async (req) => {
     return rows;
   } catch (e) {
     console.log(e.message);
-    return resData(STATUS.E300.result, STATUS.E300.resultDesc, moment().format('LT'));
+    return resData(
+      STATUS.E300.result, 
+      STATUS.E300.resultDesc, 
+      moment().format('LT'));
   }
 };
 
@@ -57,7 +66,10 @@ const todoController = {
   create: async (req) => {
     const { title, done } = req.body;
     if (isEmpty(title) || isEmpty(done)) {
-      return resData(STATUS.E100.result, STATUS.E100.resultDesc, moment().format('LT'));
+      return resData(
+        STATUS.E100.result, 
+        STATUS.E100.resultDesc,
+        moment().format('LT'));
     }
 
     try {
@@ -73,7 +85,10 @@ const todoController = {
       }
     } catch (e) {
       console.log(e.message);
-      return resData(STATUS.E300.result, STATUS.E300.resultDesc, moment().format('LT'));
+      return resData(
+        STATUS.E300.result, 
+        STATUS.E300.resultDesc, 
+        moment().format('LT'));
     }
   },
 
@@ -90,7 +105,10 @@ const todoController = {
         { totalCount, list }
       );
     } else {
-      return resData(STATUS.S201.result, STATUS.S201.resultDesc, moment().format('LT'));
+      return resData(
+        STATUS.S201.result, 
+        STATUS.S201.resultDesc, 
+        moment().format('LT'));
     }
   },
 
@@ -99,7 +117,10 @@ const todoController = {
     const { id } = req.params; // url /로 들어오는것
     const { title, done } = req.body;
     if (isEmpty(id) || isEmpty(title) || isEmpty(done)) {
-      return resData(STATUS.E100.result, STATUS.E100.resultDesc, moment().format('LT'));
+      return resData(
+        STATUS.E100.result, 
+        STATUS.E100.resultDesc, 
+        moment().format('LT'));
     }
 
     try {
@@ -115,7 +136,10 @@ const todoController = {
       }
     } catch (e) {
       console.log(e.message);
-      return resData(STATUS.E300.result, STATUS.E300.resultDesc, moment().format('LT'));
+      return resData(
+        STATUS.E300.result, 
+        STATUS.E300.resultDesc, 
+        moment().format('LT'));
     }
   },
 
@@ -123,7 +147,10 @@ const todoController = {
   delete: async (req) => {
     const { id } = req.params; // url /로 들어오는것
     if (isEmpty(id)) {
-      return resData(STATUS.E100.result, STATUS.E100.resultDesc, moment().format('LT'));
+      return resData(
+        STATUS.E100.result, 
+        STATUS.E100.resultDesc, 
+        moment().format('LT'));
     }
     const cnt = await getSelectOne(id);
     try {
@@ -146,12 +173,39 @@ const todoController = {
       }
     } catch (e) {
       console.log(e.message);
-      return resData(STATUS.E300.result, STATUS.E300.resultDesc, moment().format('LT'));
+      return resData(
+        STATUS.E300.result, 
+        STATUS.E300.resultDesc, 
+        moment().format('LT'));
     }
     return rows;
   },
 
-  
+  reset: async(req) => {
+    const query = 'TRUNCATE TABLE ${TABLE.TODO}';
+    // const [rows] = await db.execute(query);
+    try {
+      for(i=0; i < TABLE.TODO.len+1; i++){
+        const query = `INSERT INTO todo (title) VALUES (?)`;
+        const values = [i];
+        const [rows] = await db.execute(query, values);
+        if (rows.affectedRows == 1) {
+          return resData(
+            STATUS.S200.result,
+            STATUS.S200.resultDesc,
+            moment().format('LT'),
+            );
+          }
+        }
+      }
+     catch (e) {
+      console.log(e.message);
+      return resData(
+        STATUS.E300.result, 
+        STATUS.E300.resultDesc, 
+        moment().format('LT'));
+    }
+  }  
 };
 
 module.exports = todoController;
