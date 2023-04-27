@@ -181,31 +181,120 @@ const todoController = {
     return rows;
   },
 
-  reset: async(req) => {
-    const query = 'TRUNCATE TABLE ${TABLE.TODO}';
-    // const [rows] = await db.execute(query);
+  // reset: async(req) => {
+  //   const query = 'TRUNCATE TABLE ${TABLE.TODO}';
+  //   // const [rows] = await db.execute(query);
+  //   try {
+  //     for(i=0; i < TABLE.TODO.len+1; i++){
+  //       const query = `INSERT INTO todo (title) VALUES (?)`;
+  //       const values = [i];
+  //       const [rows] = await db.execute(query, values);
+  //       if (rows.affectedRows == 1) {
+  //         return resData(
+  //           STATUS.S200.result,
+  //           STATUS.S200.resultDesc,
+  //           moment().format('LT'),
+  //           );
+  //         }
+  //       }
+  //     }
+  //    catch (e) {
+  //     console.log(e.message);
+  //     return resData(
+  //       STATUS.E300.result, 
+  //       STATUS.E300.resultDesc, 
+  //       moment().format('LT'));
+  //   }
+  // }  
+
+  // reset: async (req) => {
+  //   const list = await getList();
+  //   try {
+  //     const query = `TRUNCATE TABLE todo;`;
+  //     await db.query(query);
+  //     console.log("삭제")
+  //     //console.log(db)
+  //     let insquery = `INSERT INTO todo (title) VALUES `;
+  //     for (let i = 1; i <= list.length; i++) {
+  //       insquery += `('${i}'), `;
+  //     }
+  //     insquery = insquery.slice(0, -2); // 마지막 쉼표 제거
+  
+  //     await db.query(insquery);
+  //     console.log("재생성")
+      
+
+  //     return resData(
+  //       STATUS.S200.result,
+  //       STATUS.S200.resultDesc,
+  //       moment().format('LT')
+  //     );
+  //   } catch (e) {
+  //     console.log(e.message);
+  //     return resData(
+  //       STATUS.E300.result,
+  //       STATUS.E300.resultDesc,
+  //       moment().format('LT')
+  //     );
+  //   }
+  // }
+  
+  // reset: async (req) => {
+  //   const list = await getList();
+  //   try {
+  //     const query = `TRUNCATE TABLE ${TABLE.TODO};`;
+  //     await db.execute(query);
+  
+  //     let insquery = `INSERT INTO ${TABLE.TODO} (title) VALUES `;
+  //     for (let i = 1; i <= list.length; i++) {
+  //       insquery += `('${i}'), `;
+  //     }
+  //     insquery = insquery.slice(0, -2); // 마지막 쉼표 제거
+  
+  //     await db.execute(insquery);
+  //     return resData(
+  //       STATUS.S200.result,
+  //       STATUS.S200.resultDesc,
+  //       moment().format('LT')
+  //     );
+  //   } catch (e) {
+  //     console.log(e.message);
+  //     return resData(
+  //       STATUS.E300.result,
+  //       STATUS.E300.resultDesc,
+  //       moment().format('LT')
+  //     );
+  //   }
+  // }
+  reset: async (req) => {
+    const {title, len} = req.body;
+
     try {
-      for(i=0; i < TABLE.TODO.len+1; i++){
-        const query = `INSERT INTO todo (title) VALUES (?)`;
-        const values = [i];
-        const [rows] = await db.execute(query, values);
-        if (rows.affectedRows == 1) {
-          return resData(
-            STATUS.S200.result,
-            STATUS.S200.resultDesc,
-            moment().format('LT'),
-            );
-          }
-        }
+      const query = `TRUNCATE TABLE ${TABLE.TODO};`; // table 내용 삭제
+      await db.execute(query);
+      
+      // len값 만큼 insert
+      let insquery = `INSERT INTO ${TABLE.TODO} (title) VALUES `;
+      for (let i = 1; i <= len; i++) {
+        insquery += `('${i}'), `;
       }
-     catch (e) {
+      insquery = insquery.slice(0, -2); // 마지막 쉼표 제거
+  
+      await db.execute(insquery);
+      return resData(
+        STATUS.S200.result,
+        STATUS.S200.resultDesc,
+        moment().format('LT')
+      );
+    } catch (e) {
       console.log(e.message);
       return resData(
-        STATUS.E300.result, 
-        STATUS.E300.resultDesc, 
-        moment().format('LT'));
+        STATUS.E300.result,
+        STATUS.E300.resultDesc,
+        moment().format('LT')
+      );
     }
-  }  
+  }
 };
 
 module.exports = todoController;
