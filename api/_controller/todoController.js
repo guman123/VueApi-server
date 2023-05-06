@@ -1,14 +1,14 @@
 const db = require("../../plugins/mysql");
 const TABLE = require("../../util/TABLE");
 const STATUS = require("../../util/STATUS");
-const { resData, currentTime, isEmpty } = require("../../util/lib");
+const { resData, isEmpty } = require("../../util/lib");
 const moment = require("../../util/moment");
 
 //전체 row 갯수
 const getTotal = async () => {
   // const getTotal = async function () {
   try {
-    const query = `SELECT COUNT(*) AS cnt FROM ${TABLE.TODO}`;
+    const query = `SELECT COUNT(*) AS cnt FROM ${TABLE.TODO} WHERE done='N'`;
     const [[{ cnt }]] = await db.execute(query);
     return cnt;
   } catch (e) {
@@ -47,9 +47,9 @@ const getList = async (req) => {
     let where = "";
     if (lastId) {
       // 0은 false
-      where = `WHERE id < ${lastId}`;
+      where = `AND id < ${lastId}`;
     }
-    const query = `SELECT * FROM ${TABLE.TODO} ${where} order by id desc limit 0, ${len}`;
+    const query = `SELECT * FROM ${TABLE.TODO} WHERE done='N' ${where} order by id desc limit 0, ${len}`;
     const [rows] = await db.execute(query);
     return rows;
   } catch (e) {
@@ -64,7 +64,7 @@ const getList = async (req) => {
 const todoController = {
   // create
   create: async (req) => {
-    const { title, done } = req.body;
+    const { title } = req.body;
     if (isEmpty(title) || isEmpty(done)) {
       return resData(
         STATUS.E100.result, 
@@ -73,14 +73,15 @@ const todoController = {
     }
 
     try {
-      const query = `INSERT INTO todo (title, done) VALUES (?,?)`;
-      const values = [title, done];
+      const query = `INSERT INTO todo (title) VALUES (?)`;
+      const values = [title];
       const [rows] = await db.execute(query, values);
       if (rows.affectedRows == 1) {
         return resData(
           STATUS.S200.result,
           STATUS.S200.resultDesc,
           moment().format('LT'),
+          { id: rows.insertId }
         );
       }
     } catch (e) {
@@ -117,10 +118,7 @@ const todoController = {
     const { id } = req.params; // url /로 들어오는것
     const { title, done } = req.body;
     if (isEmpty(id) || isEmpty(title) || isEmpty(done)) {
-      return resData(
-        STATUS.E100.result, 
-        STATUS.E100.resultDesc, 
-        moment().format('LT'));
+      return resData(STATUS.E100.result, STATUS.E100.resultDesc, moment().format('LT'));
     }
 
     try {
@@ -136,10 +134,7 @@ const todoController = {
       }
     } catch (e) {
       console.log(e.message);
-      return resData(
-        STATUS.E300.result, 
-        STATUS.E300.resultDesc, 
-        moment().format('LT'));
+      return resData(STATUS.E300.result, STATUS.E300.resultDesc, moment().format('LT'));
     }
   },
 
@@ -181,91 +176,7 @@ const todoController = {
     return rows;
   },
 
-  // reset: async(req) => {
-  //   const query = 'TRUNCATE TABLE ${TABLE.TODO}';
-  //   // const [rows] = await db.execute(query);
-  //   try {
-  //     for(i=0; i < TABLE.TODO.len+1; i++){
-  //       const query = `INSERT INTO todo (title) VALUES (?)`;
-  //       const values = [i];
-  //       const [rows] = await db.execute(query, values);
-  //       if (rows.affectedRows == 1) {
-  //         return resData(
-  //           STATUS.S200.result,
-  //           STATUS.S200.resultDesc,
-  //           moment().format('LT'),
-  //           );
-  //         }
-  //       }
-  //     }
-  //    catch (e) {
-  //     console.log(e.message);
-  //     return resData(
-  //       STATUS.E300.result, 
-  //       STATUS.E300.resultDesc, 
-  //       moment().format('LT'));
-  //   }
-  // }  
 
-  // reset: async (req) => {
-  //   const list = await getList();
-  //   try {
-  //     const query = `TRUNCATE TABLE todo;`;
-  //     await db.query(query);
-  //     console.log("삭제")
-  //     //console.log(db)
-  //     let insquery = `INSERT INTO todo (title) VALUES `;
-  //     for (let i = 1; i <= list.length; i++) {
-  //       insquery += `('${i}'), `;
-  //     }
-  //     insquery = insquery.slice(0, -2); // 마지막 쉼표 제거
-  
-  //     await db.query(insquery);
-  //     console.log("재생성")
-      
-
-  //     return resData(
-  //       STATUS.S200.result,
-  //       STATUS.S200.resultDesc,
-  //       moment().format('LT')
-  //     );
-  //   } catch (e) {
-  //     console.log(e.message);
-  //     return resData(
-  //       STATUS.E300.result,
-  //       STATUS.E300.resultDesc,
-  //       moment().format('LT')
-  //     );
-  //   }
-  // }
-  
-  // reset: async (req) => {
-  //   const list = await getList();
-  //   try {
-  //     const query = `TRUNCATE TABLE ${TABLE.TODO};`;
-  //     await db.execute(query);
-  
-  //     let insquery = `INSERT INTO ${TABLE.TODO} (title) VALUES `;
-  //     for (let i = 1; i <= list.length; i++) {
-  //       insquery += `('${i}'), `;
-  //     }
-  //     insquery = insquery.slice(0, -2); // 마지막 쉼표 제거
-  
-  //     await db.execute(insquery);
-  //     return resData(
-  //       STATUS.S200.result,
-  //       STATUS.S200.resultDesc,
-  //       moment().format('LT')
-  //     );
-  //   } catch (e) {
-  //     console.log(e.message);
-  //     return resData(
-  //       STATUS.E300.result,
-  //       STATUS.E300.resultDesc,
-  //       moment().format('LT')
-  //     );
-  //   }
-  // }
   reset: async (req) => {
     const {title, len} = req.body;
 
