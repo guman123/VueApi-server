@@ -28,3 +28,11 @@ const webServer = http.createServer(app);
 webServer.listen(port, () => {
   console.log(`http://localhost:${port}`);
 });
+
+// global settings
+global.UPLOAD_PATH = path.join("upload/");
+global.MEMBER_PHOTO_PATH = path.join("upload/memberPhoto");
+fs.mkdirSync(MEMBER_PHOTO_PATH, { recursive: true }); // 하위까지 모두만듦
+
+// image storage
+app.use("/upload/memberPhoto", express.static("upload/memberPhoto"));

@@ -65,7 +65,7 @@ const todoController = {
   // create
   create: async (req) => {
     const { title } = req.body;
-    if (isEmpty(title) || isEmpty(done)) {
+    if (isEmpty(title)) {
       return resData(
         STATUS.E100.result, 
         STATUS.E100.resultDesc,
